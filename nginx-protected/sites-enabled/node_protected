@@ -1,0 +1,30 @@
+server {
+
+  listen 443;
+  server_name example.org;
+  charset utf-8;
+  ssl on;
+
+  #Classic part of ssl
+  ssl_certificate      /etc/nginx/certs/server.crt;
+  ssl_certificate_key  /etc/nginx/certs/server.key;
+
+  #Here we say that we trust clients that have signed their certificate with the CA certificate.
+  ssl_client_certificate /etc/nginx/certs/ca.crt;
+  #We can choose here if we allow only authenticated requests or not. In our case it's optional
+  ssl_verify_client optional;
+
+  location / {
+    proxy_pass http://web:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    #If the client certificate was verified against our CA the header VERIFIED
+    #will have the value of 'SUCCESS' and 'NONE' otherwise
+    proxy_set_header VERIFIED $ssl_client_verify;
+    #If you want to get the DN information in your headers
+    proxy_set_header DN $ssl_client_s_dn;
+  }
+
+}

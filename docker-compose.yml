@@ -1,0 +1,10 @@
+node:
+  build: ./node-protected
+
+nginx:
+  restart: always
+  build: ./nginx-protected
+  ports:
+    - "443:443"
+  links:
+    - node:web
